@@ -24,7 +24,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 class lgthinq2 extends eqLogic
 {
     /*     * *************************Attributs****************************** */
-    public static $_pluginVersion = '1.04.01';
+    public static $_pluginVersion = '1.04.02';
     public static $_widgetPossibility   = array('custom' => true, 'custom::layout' => true);
 
     const LGTHINQ_GATEWAY       = 'https://route.lgthinq.com:46030/v1/service/application/gateway-uri';
@@ -35,7 +35,6 @@ class lgthinq2 extends eqLogic
 
     const LGTHINQ_MQTT_URL      = 'https://common.lgthinq.com/route';
     const LGTHINQ_MQTT_CER      = 'https://www.amazontrust.com/repository/AmazonRootCA1.pem';
-    const LGTHINQ_MQTT_AZU      = 'https://lgthinq.azurewebsites.net/api/certdata';
 
     const APPLICATION_KEY       = '6V1V8H2BN5P9ZQGOI5DAQ92YZBDO3EK9';
     const OAUTHSECRETKEY        = 'c053c2a6ddeb7ad97cb0eed0dcb31cf8';
@@ -692,6 +691,33 @@ class lgthinq2 extends eqLogic
             'x-thinq-security-key: nuts_securitykey',
             'x-thinq-token: ' . config::byKey('access_token', __CLASS__)
         );
+    }
+
+    /**
+     * Masque les identifiants et secrets des en-têtes avant de les journaliser.
+     *
+     * @param array $_headers En-têtes HTTP sous la forme "Nom: valeur".
+     * @return string En-têtes encodés en JSON avec les valeurs sensibles masquées.
+     */
+    private static function headersForLog($_headers)
+    {
+        $sensitiveHeaders = array(
+            'authorization',
+            'cookie',
+            'x-client-id',
+            'x-emp-token',
+            'x-thinq-jsessionid',
+            'x-thinq-token',
+            'x-user-no',
+        );
+        foreach ($_headers as &$header) {
+            $parts = explode(':', $header, 2);
+            if (count($parts) === 2 && in_array(strtolower(trim($parts[0])), $sensitiveHeaders, true)) {
+                $header = $parts[0] . ': [masqué]';
+            }
+        }
+        unset($header);
+        return json_encode($_headers);
     }
 
     /**
@@ -1391,7 +1417,7 @@ class lgthinq2 extends eqLogic
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_HTTPHEADER => $headers
         ));
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('getDEVICES HEADERS : ', __FILE__) . json_encode($headers));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('getDEVICES HEADERS : ', __FILE__) . self::headersForLog($headers));
 
         $response = curl_exec($curl);
         curl_close($curl);
@@ -1657,7 +1683,7 @@ class lgthinq2 extends eqLogic
                 CURLOPT_CUSTOMREQUEST => 'GET',
                 CURLOPT_HTTPHEADER => $headers
             ));
-            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('getDEVICES HEADERS : ', __FILE__) . json_encode($headers));
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('getDEVICES HEADERS : ', __FILE__) . self::headersForLog($headers));
 
             $response = curl_exec($curl);
             curl_close($curl);
@@ -2015,7 +2041,7 @@ class lgthinq2 extends eqLogic
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_HTTPHEADER => $headers
         ));
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('getDEVICES HEADERS : ', __FILE__) . json_encode($headers));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('getDEVICES HEADERS : ', __FILE__) . self::headersForLog($headers));
 
         $response = curl_exec($curl);
         curl_close($curl);
@@ -2096,7 +2122,7 @@ class lgthinq2 extends eqLogic
         //$headers[] = 'Content-Length: ' . strlen(json_encode($data));
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('URL : ', __FILE__) . lgthinq2::LGTHINQ1_SERV_DEVICES . 'rti/rtiMon' );
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('DATA : ', __FILE__) . json_encode($data));
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('HEADERS : ', __FILE__) . json_encode($headers));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('HEADERS : ', __FILE__) . self::headersForLog($headers));
 
         $response = lgthinq2::postData(lgthinq2::LGTHINQ1_SERV_DEVICES . 'rti/rtiMon', json_encode($data), $headers);
 
@@ -2152,7 +2178,7 @@ class lgthinq2 extends eqLogic
         //$headers[] = 'Content-Length: ' . strlen(http_build_query($data));
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('URL : ', __FILE__) . lgthinq2::LGTHINQ1_SERV_DEVICES . 'rti/rtiResult' );
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('DATA : ', __FILE__) . json_encode($data));
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('HEADERS : ', __FILE__) . json_encode($headers));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('HEADERS : ', __FILE__) . self::headersForLog($headers));
 
         $response = lgthinq2::postData(lgthinq2::LGTHINQ1_SERV_DEVICES . 'rti/rtiResult', json_encode($data, JSON_PRETTY_PRINT), $headers);
         //$response = json_decode(file_get_contents(dirname(__FILE__) . '/../../data/OTH_'.$this->getLogicalId().'.json'),true); // developper only
