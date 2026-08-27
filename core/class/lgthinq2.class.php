@@ -461,12 +461,14 @@ class lgthinq2 extends eqLogic
      * @param string $url L'URL cible de la requête POST.
      * @param array|string $data Les données à envoyer dans la requête POST, sous forme de tableau associatif ou de chaîne de requête.
      * @param array $headers Les en-têtes HTTP à inclure dans la requête POST, sous forme de tableau.
+     * @param string $diagnosticContext Contexte facultatif activant un diagnostic HTTP anonymisé.
      * @return string|false La réponse de la requête POST, ou false en cas d'échec.
      */
-    public static function postData($url, $data, $headers)
+    public static function postData($url, $data, $headers, $diagnosticContext = '')
     {
         $curl = curl_init();
-        curl_setopt_array($curl, array(
+        $responseHeaders = array();
+        $curlOptions = array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
@@ -477,13 +479,117 @@ class lgthinq2 extends eqLogic
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => $data,
             CURLOPT_HTTPHEADER => $headers
-        ));
+        );
+        if ($diagnosticContext !== '') {
+            $curlOptions[CURLOPT_HEADERFUNCTION] = function ($curlHandle, $headerLine) use (&$responseHeaders) {
+                $length = strlen($headerLine);
+                $line = trim($headerLine);
+                if (preg_match('#^HTTP/\S+\s+(\d+)#i', $line, $matches)) {
+                    $responseHeaders[] = array('status' => (int) $matches[1]);
+                    return $length;
+                }
+                if (count($responseHeaders) === 0 || strpos($line, ':') === false) {
+                    return $length;
+                }
+                list($name, $value) = array_map('trim', explode(':', $line, 2));
+                $name = strtolower($name);
+                if (in_array($name, array('location', 'allow'), true)) {
+                    $responseHeaders[count($responseHeaders) - 1][$name] = $value;
+                }
+                return $length;
+            };
+        }
+        curl_setopt_array($curl, $curlOptions);
         $response = curl_exec($curl);
+        $curlErrorNumber = curl_errno($curl);
+        $curlError = curl_error($curl);
+        if ($diagnosticContext !== '') {
+            foreach ($responseHeaders as &$responseHeader) {
+                if (isset($responseHeader['location'])) {
+                    $responseHeader['location'] = self::urlForLog($responseHeader['location']);
+                }
+            }
+            unset($responseHeader);
+            $decodedResponse = json_decode((string) $response, true);
+            $lgError = array();
+            if (is_array($decodedResponse)) {
+                foreach (array('resultCode', 'status', 'message', 'errCode') as $key) {
+                    if (isset($decodedResponse[$key]) && is_scalar($decodedResponse[$key])) {
+                            $lgError[$key] = self::textForLog($decodedResponse[$key]);
+                    }
+                }
+                if (isset($decodedResponse['error']) && is_array($decodedResponse['error'])) {
+                    foreach (array('code', 'message', 'type') as $key) {
+                        if (isset($decodedResponse['error'][$key]) && is_scalar($decodedResponse['error'][$key])) {
+                            $lgError['error_' . $key] = self::textForLog($decodedResponse['error'][$key]);
+                        }
+                    }
+                }
+            }
+            $curlVersion = curl_version();
+            $diagnostic = array(
+                'contexte' => $diagnosticContext,
+                'methode' => 'POST',
+                'url' => self::urlForLog($url),
+                'http_code' => (int) curl_getinfo($curl, CURLINFO_HTTP_CODE),
+                'url_effective' => self::urlForLog(curl_getinfo($curl, CURLINFO_EFFECTIVE_URL)),
+                'redirections' => (int) curl_getinfo($curl, CURLINFO_REDIRECT_COUNT),
+                'type_contenu' => (string) curl_getinfo($curl, CURLINFO_CONTENT_TYPE),
+                'duree_ms' => (int) round((float) curl_getinfo($curl, CURLINFO_TOTAL_TIME) * 1000),
+                'taille_reponse' => is_string($response) ? strlen($response) : 0,
+                'curl_errno' => $curlErrorNumber,
+                'curl_erreur' => self::textForLog($curlError),
+                'curl_version' => (string) ($curlVersion['version'] ?? ''),
+                'ssl_version' => (string) ($curlVersion['ssl_version'] ?? ''),
+                'parcours_http' => $responseHeaders,
+                'erreur_lg' => $lgError,
+            );
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' diagnostic HTTP ' . json_encode($diagnostic, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        }
         if ($response === false) {
-            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Erreur de requête : ', __FILE__) . curl_error($curl));
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Erreur de requête : ', __FILE__) . $curlError);
         }
         curl_close($curl);
         return $response;
+    }
+
+    /**
+     * Anonymise une URL avant son écriture dans les journaux.
+     *
+     * Les paramètres sont retirés et l'identifiant placé après
+     * `/account/session/` est systématiquement masqué.
+     *
+     * @param string $url URL à anonymiser.
+     * @return string URL limitée au serveur et au chemin non sensible.
+     */
+    private static function urlForLog($url)
+    {
+        $parts = parse_url((string) $url);
+        if (!is_array($parts)) {
+            return '';
+        }
+        $scheme = isset($parts['scheme']) ? $parts['scheme'] . '://' : '';
+        $host = (string) ($parts['host'] ?? '');
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+        $path = (string) ($parts['path'] ?? '');
+        $path = preg_replace('#(/account/session/)[^/]+#i', '$1[identifiant-masque]', $path);
+        if ($host === '') {
+            return $path === '' ? '' : '[relative]' . $path;
+        }
+        return $scheme . $host . $port . $path;
+    }
+
+    /**
+     * Masque l'identifiant configuré dans un message retourné par LG.
+     *
+     * @param mixed $value Texte brut.
+     * @return string Texte publiable dans les journaux.
+     */
+    private static function textForLog($value)
+    {
+        $text = (string) $value;
+        $username = trim((string) lgthinq2::getUsername());
+        return $username === '' ? $text : str_ireplace($username, '[identifiant masqué]', $text);
     }
 
     /**
@@ -508,7 +614,7 @@ class lgthinq2 extends eqLogic
                 if ($rawContent) {
                     $res = json_decode($result, true);
                     if ($res && isset($res['error']) && isset($res['error']['message'])) {
-                        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape a échoué ', __FILE__) . $res['error']['message'] . ', tentative ' . $i . '/' . lgthinq2::MAXRETRY);
+                        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape a échoué ', __FILE__) . self::textForLog($res['error']['message']) . ', tentative ' . $i . '/' . lgthinq2::MAXRETRY);
                         sleep(2);
                     } else {
                         return $result;
@@ -874,7 +980,12 @@ class lgthinq2 extends eqLogic
             'password_hash_prameter_flag' => 'Y',
             'svc_list' => 'SVC202,SVC710', // SVC202=LG SmartHome, SVC710=EMP OAuth
         );
-        $rep = lgthinq2::postData(config::byKey('LG_EMPTERMS_URL', __CLASS__) . '/emp/v2.0/account/session/' . lgthinq2::getUsername(true), http_build_query($data), $headers);
+        $rep = lgthinq2::postData(
+            config::byKey('LG_EMPTERMS_URL', __CLASS__) . '/emp/v2.0/account/session/' . lgthinq2::getUsername(true),
+            http_build_query($data),
+            $headers,
+            'connexion étape 2'
+        );
         return $rep;
     }
 
@@ -1018,10 +1129,17 @@ class lgthinq2 extends eqLogic
         }
         $spxLogin = json_decode($rep1, true);
         if (!$spxLogin || !isset($spxLogin['encrypted_pw'])) {
-            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape 2 a planté ', __FILE__) . json_encode($spxLogin));
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape 1 a retourné une réponse invalide : ', __FILE__) . self::textForLog(json_encode($spxLogin)));
             return;
         }
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : EncryptedPw = ' . $rep1);
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : PRELOGIN = ' . json_encode(array(
+            'encrypted_pw_present' => !empty($spxLogin['encrypted_pw']),
+            'signature_present' => !empty($spxLogin['signature']),
+            'timestamp_present' => !empty($spxLogin['tStamp']),
+            'identifiant_email_valide' => filter_var(trim((string) lgthinq2::getUsername()), FILTER_VALIDATE_EMAIL) !== false,
+            'identifiant_sans_espace' => (string) lgthinq2::getUsername() === trim((string) lgthinq2::getUsername()),
+            'langue_configuree' => lgthinq2::getLanguage('plain'),
+        )));
 
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __(' : ÉTAPE 2', __FILE__));
         $rep2 = lgthinq2::doRetry(function() use ($spxLogin) { return lgthinq2::step2($spxLogin); }, true);
@@ -1031,10 +1149,23 @@ class lgthinq2 extends eqLogic
         }
         $accountData = json_decode($rep2, true);
         if (!$accountData || !isset($accountData['account'])) {
-            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape 2 a planté', __FILE__) . json_encode($accountData));
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape 2 a retourné une réponse invalide : ', __FILE__) . self::textForLog(json_encode($accountData)));
             return;
         }
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ACCOUNT INFOS = ' . json_encode($accountData['account']));
+        $accountForLog = array(
+            'userIDType' => (string) ($accountData['account']['userIDType'] ?? ''),
+            'country' => (string) ($accountData['account']['country'] ?? ''),
+            'lgAccount' => (string) ($accountData['account']['lgAccount'] ?? ''),
+            'isService' => (string) ($accountData['account']['isService'] ?? ''),
+            'authUser' => (string) ($accountData['account']['authUser'] ?? ''),
+            'passwordLockYn' => (string) ($accountData['account']['passwordLockYn'] ?? ''),
+            'changePw' => (string) ($accountData['account']['changePw'] ?? ''),
+            'periodPW' => (string) ($accountData['account']['periodPW'] ?? ''),
+            'services' => array_values(array_filter(array_map(function ($service) {
+                return is_array($service) ? (string) ($service['svcCode'] ?? '') : '';
+            }, (array) ($accountData['account']['serviceList'] ?? array())))),
+        );
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ACCOUNT INFOS = ' . json_encode($accountForLog));
         config::save('loginSessionID', $accountData['account']['loginSessionID'], __CLASS__);
         $timeToExp = explode(';', $accountData['account']['loginSessionID'])[1];
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' : START TIME = ' . $timeToExp);
@@ -1045,21 +1176,26 @@ class lgthinq2 extends eqLogic
             log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape 3 a échoué après plusieurs tentatives.', __FILE__));
             return;
         }
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : REDIRECTURI = '. $rep3 );
         $oauth = json_decode($rep3, true);
         if (!$oauth || !isset($oauth['redirect_uri'])) {
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' : REDIRECTION OAUTH absente, réponse = ' . json_encode(array(
+                'status' => $oauth['status'] ?? null,
+                'error_code' => $oauth['lgoauth_error_code'] ?? ($oauth['errCode'] ?? null),
+                'message' => isset($oauth['message']) ? self::textForLog($oauth['message']) : null,
+            )));
             return;
         }
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : REDIRECTION OAUTH présente');
         $decodedUrl = urldecode($oauth['redirect_uri']);
         $urlParts = parse_url($decodedUrl);
         if (isset($urlParts['query'])) {
             parse_str($urlParts['query'], $queryParams);
             if (isset($queryParams['code'])) {
                 $code = $queryParams['code'];
-                log::add(__CLASS__, 'debug', __FUNCTION__ . ' : URL CODE = ' .$code);
+                log::add(__CLASS__, 'debug', __FUNCTION__ . ' : CODE OAUTH présent');
             }
             if (isset($queryParams['user_number'])) {
-                log::add(__CLASS__, 'debug', __FUNCTION__ . ' : URL USER NUMBER = ' . $queryParams['user_number']);
+                log::add(__CLASS__, 'debug', __FUNCTION__ . ' : NUMÉRO UTILISATEUR présent');
                 config::save('user_number', $queryParams['user_number'], __CLASS__);
             }
         } else {
@@ -1088,12 +1224,17 @@ class lgthinq2 extends eqLogic
             log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Étape 5 a échoué.', __FILE__));
             return;
         }
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ACCESS/REFRESH TOKENS = ' . $rep5);
         $token = json_decode($rep5, true);
         if (!$token || !isset($token['access_token'])) {
             log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Impossible de récupérer le token d\'accès.', __FILE__));
             return;
         }
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : TOKENS = ' . json_encode(array(
+            'access_token_present' => !empty($token['access_token']),
+            'refresh_token_present' => !empty($token['refresh_token']),
+            'expires_in' => $token['expires_in'] ?? null,
+            'oauth2_backend' => self::urlForLog(urldecode((string) ($token['oauth2_backend_url'] ?? ''))),
+        )));
 
         config::save('access_token', $token['access_token'], __CLASS__);
         config::save('expires_in', (intval($timeToExp/1000) + $token['expires_in']), __CLASS__);
@@ -1102,7 +1243,7 @@ class lgthinq2 extends eqLogic
 
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('ÉTAPE 6', __FILE__));
         $jsession = lgthinq2::step6();
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Jeton de session ', __FILE__) . $jsession);
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Jeton de session présent : ', __FILE__) . ($jsession ? 'oui' : 'non'));
 
         config::save('jsessionId', $jsession, __CLASS__);
     }
