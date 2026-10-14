@@ -108,6 +108,7 @@ function printPluginConfiguration() {
     var configInputs = divPluginLGConfiguration?.querySelectorAll('.configKey');
     var modificationCount = 0;
     var initialValues = new Map();
+    var baselineReady = false;
     var modificationMessage = document.createElement('i');
     modificationMessage.classList.add('modificationWithoutSave', 'label', 'label-warning', 'pull-right');
     modificationMessage.innerHTML = '{{Modification en cours...}}';
@@ -132,18 +133,18 @@ function printPluginConfiguration() {
         }
     }
 
-    configInputs?.forEach(function (input) {
-        resetStyle(input); // Reset du style au démarrage
-        if (input.type === 'checkbox') {
-            initialValues.set(input, input.checked);
-        } else {
-            initialValues.set(input, input.value);
-        }
-    });
+    window.setTimeout(function () {
+        configInputs?.forEach(function (input) {
+            resetStyle(input);
+            initialValues.set(input, input.type === 'checkbox' ? input.checked : input.value);
+        });
+        baselineReady = true;
+    }, 500);
 
     configInputs?.forEach(function (input) {
         if (input.type === 'checkbox') {
             input.addEventListener('change', function() {
+                if (!baselineReady) return;
                 const initialValue = initialValues.get(this);
                 const isModified = this.checked !== initialValue;
 
@@ -161,6 +162,7 @@ function printPluginConfiguration() {
         } else {
             const eventType = input.nodeName === 'SELECT' ? 'change' : 'input';
             input.addEventListener(eventType, function() {
+                if (!baselineReady) return;
                 const initialValue = initialValues.get(this);
                 const isModified = this.value !== initialValue;
 

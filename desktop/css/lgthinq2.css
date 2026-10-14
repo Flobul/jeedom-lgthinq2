@@ -20,6 +20,9 @@
 .eqLogicDisplayCard .displayPlatformType.blackThinq {
     color: black;
 }
+[data-theme="core2019_Dark"] .eqLogicDisplayCard .displayPlatformType.blackThinq {
+    color: var(--txt-color-2, #ccc);
+}
 .eqLogicDisplayCard .displayPlatformType.whiteThinq {
     color: white;
 }

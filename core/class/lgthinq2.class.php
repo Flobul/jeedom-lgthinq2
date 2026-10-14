@@ -257,57 +257,57 @@ class lgthinq2 extends eqLogic
     {
         $_deviceTypes = array(
             000 => '', // Inconnu
-            101 => 'fa fa-snowflake', // Réfrigérateur
-            102 => 'fa fa-ice-cream', // Réfrigérateur à kimchi
-            103 => 'fa fa-tint', // Purificateur d'eau
-            105 => 'fa fa-wine-glass', // Cave à vin
-            201 => 'fa fa-tshirt', // Lave-linge
-            202 => 'fa fa-tshirt', // Sèche-linge
-            203 => 'fa fa-tshirt', // Styler
-            204 => 'fa fa-utensils', // Lave-vaisselle
-            221 => 'fa fa-tshirt', // WashTower laveuse
-            222 => 'fa fa-tshirt', // WashTower sécheuse
-            301 => 'fa fa-utensils', // Four
-            302 => 'fa fa-microwave', // Four micro-ondes
-            303 => 'fa fa-burner', // Table de cuisson
-            304 => 'fa fa-exhaust-hood', // Hotte
-            401 => 'fa fa-snowflake', // Climatisation/Air Care/Pompe à chaleur
-            402 => 'fa fa-wind', // Purificateur d'air
-            403 => 'fa fa-tint', // Déshumidificateur
-            405 => 'fa fa-fan', // Ventilateur de plafond
-            501 => 'fa fa-robot', // Aspirateur robot
-            504 => 'fa fa-broom', // Aspirateur balai
-            604 => 'fa fa-chair', // Chaise de massage
-            605 => 'fa fa-thermometer', // Thermostat de luxe
-            1001 => 'fa fa-couch', // Arch
-            3001 => 'fa fa-box', // Missg
-            3002 => 'fa fa-microchip', // Capteur ThinQ
-            3003 => 'fa fa-lightbulb', // Ampoule LG
-            3004 => 'fa fa-walking', // Détecteur de mouvement
-            3005 => 'fa fa-plug', // Prise DW
-            3006 => 'fa fa-dust', // Capteur de poussière
-            3010 => 'fa fa-fire', // Détecteur de fumée
-            3014 => 'fa fa-plug', // Prise Easy
-            3102 => 'fa fa-sun', // Détecteur solaire
-            3103 => 'fa fa-lightbulb', // Type de groupe d'éclairage
-            3007 => 'fa fa-gas-pump', // Capteur de gaz Orbivo
-            3008 => 'fa fa-water', // Détecteur de fuite d'eau Orbivo
-            3009 => 'fa fa-walking', // Détecteur de mouvement Ihorn
-            3011 => 'fa fa-skull-crossbones', // Capteur de monoxyde de carbone Orbivo
-            3012 => 'fa fa-thermometer', // Sonde de température Orbivo
-            3015 => 'fa fa-tint', // Capteur d'humidité Orbivo
-            3013 => 'fa fa-door-open', // Détecteur d'ouverture de porte Ihorn
-            4001 => 'fa fa-wind', // EMS_AIR_STATION
-            4003 => 'fa fa-wind', // Sonde air
-            4004 => 'fa fa-dust', // Capteur de poussière
-            4006 => 'fa fa-lightbulb', // Lampe intelligente
-            4201 => 'fa fa-walking', // Détecteur de mouvement Aqara
-            4202 => 'fa fa-thermometer', // Capteur thermométrique/hygrométrique Aqara
-            4203 => 'fa fa-door-open', // Capteur d'ouverture Aqara
-            4301 => 'fa fa-plug', // Prise Aqara
-            10000 => 'fa fa-tv', // Télévision
-            10101 => 'fa fa-hdd', // Hub HEJ
-            20000 => 'fa fa-clock' // Montre
+            101 => 'fas fa-snowflake', // Réfrigérateur
+            102 => 'fas fa-ice-cream', // Réfrigérateur à kimchi
+            103 => 'fas fa-tint', // Purificateur d'eau
+            105 => 'fas fa-wine-glass', // Cave à vin
+            201 => 'fas fa-tshirt', // Lave-linge
+            202 => 'fas fa-tshirt', // Sèche-linge
+            203 => 'fas fa-tshirt', // Styler
+            204 => 'fas fa-utensils', // Lave-vaisselle
+            221 => 'fas fa-tshirt', // WashTower laveuse
+            222 => 'fas fa-tshirt', // WashTower sécheuse
+            301 => 'fas fa-utensils', // Four
+            302 => 'fas fa-microwave', // Four micro-ondes
+            303 => 'fas fa-burner', // Table de cuisson
+            304 => 'fas fa-exhaust-hood', // Hotte
+            401 => 'fas fa-snowflake', // Climatisation/Air Care/Pompe à chaleur
+            402 => 'fas fa-wind', // Purificateur d'air
+            403 => 'fas fa-tint', // Déshumidificateur
+            405 => 'fas fa-fan', // Ventilateur de plafond
+            501 => 'fas fa-robot', // Aspirateur robot
+            504 => 'fas fa-broom', // Aspirateur balai
+            604 => 'fas fa-chair', // Chaise de massage
+            605 => 'fas fa-thermometer', // Thermostat de luxe
+            1001 => 'fas fa-couch', // Arch
+            3001 => 'fas fa-box', // Missg
+            3002 => 'fas fa-microchip', // Capteur ThinQ
+            3003 => 'fas fa-lightbulb', // Ampoule LG
+            3004 => 'fas fa-walking', // Détecteur de mouvement
+            3005 => 'fas fa-plug', // Prise DW
+            3006 => 'fas fa-dust', // Capteur de poussière
+            3010 => 'fas fa-fire', // Détecteur de fumée
+            3014 => 'fas fa-plug', // Prise Easy
+            3102 => 'fas fa-sun', // Détecteur solaire
+            3103 => 'fas fa-lightbulb', // Type de groupe d'éclairage
+            3007 => 'fas fa-gas-pump', // Capteur de gaz Orbivo
+            3008 => 'fas fa-water', // Détecteur de fuite d'eau Orbivo
+            3009 => 'fas fa-walking', // Détecteur de mouvement Ihorn
+            3011 => 'fas fa-skull-crossbones', // Capteur de monoxyde de carbone Orbivo
+            3012 => 'fas fa-thermometer', // Sonde de température Orbivo
+            3015 => 'fas fa-tint', // Capteur d'humidité Orbivo
+            3013 => 'fas fa-door-open', // Détecteur d'ouverture de porte Ihorn
+            4001 => 'fas fa-wind', // EMS_AIR_STATION
+            4003 => 'fas fa-wind', // Sonde air
+            4004 => 'fas fa-dust', // Capteur de poussière
+            4006 => 'fas fa-lightbulb', // Lampe intelligente
+            4201 => 'fas fa-walking', // Détecteur de mouvement Aqara
+            4202 => 'fas fa-thermometer', // Capteur thermométrique/hygrométrique Aqara
+            4203 => 'fas fa-door-open', // Capteur d'ouverture Aqara
+            4301 => 'fas fa-plug', // Prise Aqara
+            10000 => 'fas fa-tv', // Télévision
+            10101 => 'fas fa-hdd', // Hub HEJ
+            20000 => 'fas fa-clock' // Montre
         );
 
         return isset($_deviceTypes[$_id]) ? $_deviceTypes[$_id] : '';
@@ -3623,7 +3623,7 @@ class lgthinq2 extends eqLogic
                         }
                     }
                     if (!$foundSelect) {
-                        $listOption = '<option value="">{{Aucun}}</option>' . $listOption;
+                        $listOption = '<option value="">' . __('Aucun', __FILE__) . '</option>' . $listOption;
                     }
                     $replace['#cmd_' . $cmd->getLogicalId() . '_valueMapping#'] = $listOption;
                 }
@@ -3636,7 +3636,7 @@ class lgthinq2 extends eqLogic
                     $listOption .= '<option value="' . $refId . '">' . $refValue['name'] . ' [' . $refId . ']</option>';
                 }
                 if (!$foundSelect) {
-                    $listOption = '<option value="">{{Aucun}}</option>' . $listOption;
+                    $listOption = '<option value="">' . __('Aucun', __FILE__) . '</option>' . $listOption;
                 }
                 $replace['#cmd_' . $cmd->getLogicalId() . '_valueMapping#'] = $listOption;
             }

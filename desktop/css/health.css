@@ -1,0 +1,25 @@
+/** LG ThinQ 2 — modal Santé. */
+#lgthinq2Health { --lgthinq2-health-accent:#78a900; --lgthinq2-health-border:rgba(127,127,127,.22); --lgthinq2-health-surface:rgba(255,255,255,.86); box-sizing:border-box; width:min(100%,1320px); margin:0 auto; padding:10px 14px 24px; }
+#lgthinq2Health .lgthinq2-health-hero { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:16px; overflow:hidden; margin-bottom:16px; padding:22px 24px; border-radius:16px; color:#fff; background:linear-gradient(125deg,#425f00 0%,#78a900 48%,#94ca02 100%); box-shadow:0 12px 28px rgba(0,0,0,.16); }
+#lgthinq2Health .lgthinq2-health-hero-icon, #lgthinq2Health .lgthinq2-health-summary-icon { display:inline-flex; align-items:center; justify-content:center; }
+#lgthinq2Health .lgthinq2-health-hero-icon { width:62px; height:62px; border:1px solid rgba(255,255,255,.28); border-radius:17px; background:rgba(0,0,0,.12); font-size:29px; }
+#lgthinq2Health .lgthinq2-health-eyebrow { display:block; margin-bottom:2px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; opacity:.82; }
+#lgthinq2Health .lgthinq2-health-hero h2 { margin:0 0 4px; color:#fff !important; font-size:24px; font-weight:700; }
+#lgthinq2Health .lgthinq2-health-hero p { margin:0; color:rgba(255,255,255,.88) !important; font-size:13px; }
+#lgthinq2Health .lgthinq2-health-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+#lgthinq2Health .lgthinq2-health-summary article { display:flex; align-items:center; gap:12px; min-width:0; padding:14px; border:1px solid var(--lgthinq2-health-border); border-radius:12px; background:var(--lgthinq2-health-surface); box-shadow:0 4px 13px rgba(30,55,20,.06); }
+#lgthinq2Health .lgthinq2-health-summary-icon { flex:0 0 46px; width:46px; height:46px; border-radius:12px; color:var(--lgthinq2-health-accent); background:rgba(120,169,0,.13); font-size:20px; }
+#lgthinq2Health .lgthinq2-health-summary article > div { min-width:0; }
+#lgthinq2Health .lgthinq2-health-summary article div > span, #lgthinq2Health .lgthinq2-health-summary small { display:block; overflow:hidden; font-size:11px; text-overflow:ellipsis; white-space:nowrap; opacity:.68; }
+#lgthinq2Health .lgthinq2-health-summary strong { display:block; margin:2px 0; font-size:21px; }
+#lgthinq2Health .lgthinq2-health-panel { overflow:hidden; border:1px solid var(--lgthinq2-health-border); border-radius:13px; background:var(--lgthinq2-health-surface); }
+#lgthinq2Health .lgthinq2-health-panel-header { display:flex; align-items:center; gap:9px; padding:12px 16px; border-bottom:1px solid var(--lgthinq2-health-border); background:rgba(120,169,0,.08); }
+#lgthinq2Health .lgthinq2-health-panel-header i { color:var(--lgthinq2-health-accent); }
+#lgthinq2Health .lgthinq2-health-panel-header h3 { margin:0; font-size:16px; }
+#lgthinq2Health .table-responsive { margin:0; border:0; }
+#lgthinq2Health .table { margin-bottom:0; }
+#lgthinq2Health .table th, #lgthinq2Health .table td { vertical-align:middle; font-size:12px; }
+#lgthinq2Health .lgthinq2-health-disabled { opacity:.55; }
+[data-theme="core2019_Dark"] #lgthinq2Health { --lgthinq2-health-border:rgba(255,255,255,.13); --lgthinq2-health-surface:rgba(38,43,47,.9); }
+@media (max-width:950px) { #lgthinq2Health .lgthinq2-health-summary { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:560px) { #lgthinq2Health { padding:6px; } #lgthinq2Health .lgthinq2-health-summary { grid-template-columns:1fr; } #lgthinq2Health .lgthinq2-health-hero { padding:18px; } }

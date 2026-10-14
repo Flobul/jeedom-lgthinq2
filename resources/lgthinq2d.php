@@ -33,26 +33,26 @@ try {
     curl_close($curlMqtt);
     if ($rep === false || $gatewayHttpCode >= 400) {
         throw new RuntimeException(
-            'Impossible de récupérer la route MQTT LG ThinQ (HTTP ' . $gatewayHttpCode .
+            __('Impossible de récupérer la route MQTT LG ThinQ', __FILE__) . ' (HTTP ' . $gatewayHttpCode .
             ($gatewayCurlError !== '' ? ', cURL : ' . $gatewayCurlError : '') . ').'
         );
     }
     $gatewayRes = json_decode($rep, true);
     if (!$gatewayRes || !isset($gatewayRes['resultCode'], $gatewayRes['result'])) {
-        throw new RuntimeException('Réponse invalide reçue pour la route MQTT LG ThinQ.');
+        throw new RuntimeException(__('Réponse invalide reçue pour la route MQTT LG ThinQ.', __FILE__));
     }
     if ($gatewayRes['resultCode'] != '0000') {
         if ($gatewayRes['resultCode'] == '0110') {
             event::add('jeedom::alert', array(
                 'level' => 'success',
                 'page' => 'lgthinq2',
-                'message' => __("Les conditions générales ont changées, merci de vous rendre sur l'applications pour les accepter.", __FILE__),
+                'message' => __('Les conditions générales ont changé, merci de vous rendre dans l’application pour les accepter.', __FILE__),
             ));
         }
-        throw new RuntimeException('La route MQTT LG ThinQ a renvoyé le code ' . $gatewayRes['resultCode'] . '.');
+        throw new RuntimeException(__('La route MQTT LG ThinQ a renvoyé le code', __FILE__) . ' ' . $gatewayRes['resultCode'] . '.');
     }
     if (empty($gatewayRes['result']['apiServer']) || empty($gatewayRes['result']['mqttServer'])) {
-        throw new RuntimeException('La route LG ThinQ ne contient pas les serveurs API et MQTT attendus.');
+        throw new RuntimeException(__('La route LG ThinQ ne contient pas les serveurs API et MQTT attendus.', __FILE__));
     }
     log::add('lgthinq2', 'debug', __('DÉMON MQTT : ', __FILE__) . __('API SERVER ', __FILE__) . $gatewayRes['result']['apiServer']);
     //config::save('LGE_API_SERVER', $gatewayRes['result']['apiServer'], 'lgthinq2');
@@ -62,7 +62,7 @@ try {
     // Azure helper was a single point of failure and exposed the private key to
     // a third-party service.
     if (!extension_loaded('openssl')) {
-        throw new RuntimeException("L'extension PHP OpenSSL est requise pour initialiser MQTT.");
+        throw new RuntimeException(__("L'extension PHP OpenSSL est requise pour initialiser MQTT.", __FILE__));
     }
     $opensslConfig = array(
         'digest_alg' => 'sha256',
@@ -71,23 +71,23 @@ try {
     );
     $privateKey = openssl_pkey_new($opensslConfig);
     if ($privateKey === false) {
-        throw new RuntimeException('OpenSSL ne parvient pas à générer la clé privée MQTT.');
+        throw new RuntimeException(__('OpenSSL ne parvient pas à générer la clé privée MQTT.', __FILE__));
     }
     $certificateRequest = openssl_csr_new(array(
         'commonName' => 'AWS IoT Certificate',
         'organizationName' => 'Amazon',
     ), $privateKey, $opensslConfig);
     if ($certificateRequest === false) {
-        throw new RuntimeException('OpenSSL ne parvient pas à générer la demande de certificat MQTT.');
+        throw new RuntimeException(__('OpenSSL ne parvient pas à générer la demande de certificat MQTT.', __FILE__));
     }
     if (!openssl_pkey_export($privateKey, $privateKeyPem, null, $opensslConfig)) {
-        throw new RuntimeException("OpenSSL ne parvient pas à exporter la clé privée MQTT.");
+        throw new RuntimeException(__('OpenSSL ne parvient pas à exporter la clé privée MQTT.', __FILE__));
     }
     if (!openssl_csr_export($certificateRequest, $csrPem)) {
-        throw new RuntimeException('OpenSSL ne parvient pas à exporter la demande de certificat MQTT.');
+        throw new RuntimeException(__('OpenSSL ne parvient pas à exporter la demande de certificat MQTT.', __FILE__));
     }
     if (file_put_contents($fileCertClientKey, $privateKeyPem, LOCK_EX) === false) {
-        throw new RuntimeException("Impossible d'écrire la clé privée MQTT dans " . $fileCertClientKey . '.');
+        throw new RuntimeException(__("Impossible d'écrire la clé privée MQTT dans", __FILE__) . ' ' . $fileCertClientKey . '.');
     }
     chmod($fileCertClientKey, 0600);
     log::add('lgthinq2', 'debug', __('DÉMON MQTT : ', __FILE__) . 'Clé privée et CSR générés localement');
@@ -110,17 +110,17 @@ try {
     $cerRes = json_decode($repCer, true);
     if (!$cerRes || !isset($cerRes['resultCode'], $cerRes['result']) || $cerRes['resultCode'] != '0000') {
         throw new RuntimeException(
-            'Impossible de récupérer le certificat MQTT LG ThinQ (code ' .
-            ($cerRes['resultCode'] ?? 'réponse invalide') . ').'
+            __('Impossible de récupérer le certificat MQTT LG ThinQ', __FILE__) . ' (' . __('code', __FILE__) . ' ' .
+            ($cerRes['resultCode'] ?? __('réponse invalide', __FILE__)) . ').'
         );
     }
     if (empty($cerRes['result']['certificatePem']) || empty($cerRes['result']['subscriptions'])) {
-        throw new RuntimeException('La réponse LG ThinQ ne contient pas le certificat ou les abonnements MQTT attendus.');
+        throw new RuntimeException(__('La réponse LG ThinQ ne contient pas le certificat ou les abonnements MQTT attendus.', __FILE__));
     }
     log::add('lgthinq2', 'debug', __('DÉMON MQTT : ', __FILE__) . __('CER ', __FILE__) . 'Certificat reçu, ' . count($cerRes['result']['subscriptions']) . ' abonnement(s)');
     //config::save('MQTT_CER_PEM', $cerRes['result']['certificatePem'], 'lgthinq2');
     if (file_put_contents($fileCertClient, $cerRes['result']['certificatePem'], LOCK_EX) === false) {
-        throw new RuntimeException("Impossible d'écrire le certificat MQTT dans " . $fileCertClient . '.');
+        throw new RuntimeException(__("Impossible d'écrire le certificat MQTT dans", __FILE__) . ' ' . $fileCertClient . '.');
     }
     chmod($fileCertClient, 0600);
     //config::save('MQTT_SUB', $cerRes['result']['subscriptions'][0], 'lgthinq2');

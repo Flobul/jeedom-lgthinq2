@@ -24,64 +24,35 @@
        die();
    }
    $plugin = plugin::byId('lgthinq2');
+   $update = $plugin->getUpdate();
    sendVarToJS('version', lgthinq2::$_pluginVersion);
 
    ?>
-<style>
-   input:not(.numInput):not(.btn):not(.dial):not([type=radio]):not([type=image]):not(.expressionAttr):not(.knob):not([type=checkbox]).dangerBgColor {
-        color: var(--al-danger-color) !important;
-    }
-</style>
+<?php include_file('desktop', 'configuration', 'css', 'lgthinq2'); ?>
 <form class="form-horizontal" id="configuration_plugin_lgthinq2">
    <fieldset>
-      <div class="form-group">
-          <legend>
-             <i class="fa fa-list-alt"></i> {{Général}}
-          </legend>
-         <?php
-            $update = $plugin->getUpdate();
-            if (is_object($update)) {
-                echo '<div class="col-lg-3">';
-                echo '<div>';
-                echo '<label>{{Branche}} :</label> <span class="label label-info">'. $update->getConfiguration('version', 'stable') . '</span>';
-                echo '</div>';
-                echo '<div>';
-                echo '<label>{{Source}} :</label> ' . $update->getSource();
-                echo '</div>';
-                echo '<div>';
-                echo '<label>{{Version}} :</label> v' . ((lgthinq2::$_pluginVersion)?lgthinq2::$_pluginVersion:' '). ' (' . $update->getLocalVersion() . ')';
-                echo '</div>';
-                echo '</div>';
-            }
-            ?>
-         <div class="col-lg-5">
-            <div>
-               <i><a class="btn btn-primary btn-xs" target="_blank" href="https://flobul-domotique.fr/presentation-du-plugin-lgthinq2-pour-jeedom/"><i class="fas fa-book"></i><strong> {{Présentation du plugin}}</strong></a></i>
-               <i><a class="btn btn-success btn-xs" target="_blank" href="<?=$plugin->getDocumentation()?>"><i class="fas fa-book"></i><strong> {{Documentation complète du plugin}}</strong></a></i>
+      <div class="lgthinq2-config-page">
+         <header class="lgthinq2-config-hero">
+            <div class="lgthinq2-config-identity">
+               <div class="lgthinq2-config-logo"><img src="plugins/lgthinq2/plugin_info/lgthinq2_icon.png" alt="LG ThinQ 2"></div>
+               <div><span class="lgthinq2-config-eyebrow">{{Configuration du plugin}}</span><h2>LG ThinQ 2</h2><p>{{Connectez vos appareils LG ThinQ à Jeedom et configurez leur synchronisation cloud.}}</p></div>
             </div>
-            <div>
-               <i> {{Les dernières actualités du plugin}} <a class="btn btn-label btn-xs" target="_blank" href="https://community.jeedom.com/t/plugin-lgthinq2-documentation-et-actualites/39994"><i class="icon jeedomapp-home-jeedom icon-lgthinq2"></i><strong>{{sur le community}}</strong></a>.</i>
+            <div class="lgthinq2-config-meta">
+               <span><i class="fas fa-code-branch"></i> {{Version}} <strong>v<?=htmlspecialchars((string) lgthinq2::$_pluginVersion, ENT_QUOTES, 'UTF-8')?></strong></span>
+               <?php if (is_object($update)) { ?>
+                  <span><i class="fas fa-calendar-alt"></i> <?=htmlspecialchars((string) $update->getLocalVersion(), ENT_QUOTES, 'UTF-8')?></span>
+                  <span><i class="fas fa-stream"></i> <?=htmlspecialchars((string) $update->getConfiguration('version', 'stable'), ENT_QUOTES, 'UTF-8')?></span>
+                  <span><i class="fas fa-cloud-download-alt"></i> <?=htmlspecialchars((string) $update->getSource(), ENT_QUOTES, 'UTF-8')?></span>
+               <?php } ?>
             </div>
-            <div>
-               <i> {{Les dernières discussions autour du plugin}} <a class="btn btn-label btn-xs" target="_blank" href="https://community.jeedom.com/tags/plugin-lgthinq2"><i class="icon jeedomapp-home-jeedom icon-lgthinq2"></i><strong>{{sur le community}}</strong></a>.</i></br>
-               <i> {{Pensez à mettre le tag}} <b><font font-weight="bold" size="+1">#plugin-lgthinq2</font></b> {{et à fournir les log dans les balises préformatées}}.</i>
+            <div class="lgthinq2-config-links">
+               <a class="btn btn-sm lgthinq2-config-link-documentation" target="_blank" rel="noopener noreferrer" href="<?=htmlspecialchars((string) $plugin->getDocumentation(), ENT_QUOTES, 'UTF-8')?>"><i class="fas fa-book"></i> {{Documentation}}</a>
+               <a class="btn btn-sm lgthinq2-config-link-changelog" target="_blank" rel="noopener noreferrer" href="<?=htmlspecialchars((string) $plugin->getChangelog(), ENT_QUOTES, 'UTF-8')?>"><i class="fas fa-list"></i> {{Changelog}}</a>
+               <a class="btn btn-sm lgthinq2-config-link-community" target="_blank" rel="noopener noreferrer" href="https://community.jeedom.com/tag/plugin-lgthinq2"><i class="fas fa-comments"></i> {{Communauté}}</a>
             </div>
-            <style>
-               .icon-lgthinq2 {
-                   font-size: 1.3em;
-                   color: #94CA02;
-               }
-
-               :root{
-                 --background-color: #1987ea;
-                }
-            </style>
-         </div>
-      </div>
-      <div class="form-group">
-        <legend>
-		  <i class="fas fa-cogs"></i> {{Paramètres}}
-		</legend>
+         </header>
+      <div class="form-group lgthinq2-config-section">
+        <legend><i class="fas fa-cogs"></i> {{Paramètres}}</legend>
           <div class="form-group">
               <label class="col-lg-4 control-label">{{Intervalle de rafraîchissement des informations (cron)}}
       <sup><i class="fas fa-question-circle" title="{{Sélectionnez l'intervalle auquel le plugin ira récupérer les informations sur les serveurs LG.}}"></i></sup>
@@ -187,7 +158,7 @@
 
         </div>
 
-      <div class="form-group">
+      <div class="form-group lgthinq2-config-section">
 		<legend>
 		    <i class="fas fa-user-cog"></i> {{Authentification}}
 		</legend>
@@ -326,6 +297,7 @@
               <input type="text" disabled class="configKey form-control" data-l1key="LG_EMPTERMS_URL"></input>
           </div>
         </div>
+      </div>
       </div>
       </div>
    </fieldset>

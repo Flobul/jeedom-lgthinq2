@@ -17,11 +17,11 @@
  */
 
 if (!isConnect('admin')) {
-    throw new Exception('{{401 - Accès non autorisé}}');
+    throw new Exception(__('401 - Accès non autorisé', __FILE__));
 }
 $cmd = cmd::byId(init('id'));
 if (!is_object($cmd)) {
-    throw new Exception('{{Commande non trouvée}}'.' : ' . init('id'));
+    throw new Exception(__('Commande non trouvée', __FILE__) . ' : ' . init('id'));
 }
 global $JEEDOM_INTERNAL_CONFIG;
 
@@ -114,7 +114,7 @@ sendVarToJS('cmdInfo', $cmdInfo);
                           <div class="form-group">
                             <label class="col-xs-3 control-label">{{Valeurs possibles}}</label>
                             <div class="col-xs-9">
-                                      <textarea class="cmdAttr form-control input-sm tooltipstered" data-l1key="configuration" data-l2key="listValue" placeholder="Liste de valeur|texte séparé par ;" id="changeListValue"></textarea>
+                                      <textarea class="cmdAttr form-control input-sm tooltipstered" data-l1key="configuration" data-l2key="listValue" placeholder="{{Liste de valeur|texte séparé par ;}}" id="changeListValue"></textarea>
                               <?php
                                   $elements = explode(';', $cmd->getConfiguration('listValue', ''));
                                   $i = 0;

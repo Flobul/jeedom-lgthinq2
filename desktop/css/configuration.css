@@ -1,0 +1,40 @@
+/**
+ * LG ThinQ 2 — page de configuration.
+ */
+#configuration_plugin_lgthinq2 {
+    --lgthinq2-accent: #94ca02;
+    --lgthinq2-accent-dark: #587d00;
+    --lgthinq2-border: rgba(127,127,127,.22);
+}
+
+#configuration_plugin_lgthinq2 .lgthinq2-config-page { box-sizing: border-box; width: min(100%,1320px); margin: 0 auto; padding: 10px 14px 28px; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-hero { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 18px 28px; overflow: hidden; margin-bottom: 18px; padding: 24px 28px; border-radius: 18px; color: #fff; background: linear-gradient(125deg,#425f00 0%,#78a900 48%,#94ca02 100%); box-shadow: 0 8px 22px rgba(50,75,0,.16); }
+#configuration_plugin_lgthinq2 .lgthinq2-config-identity { display: flex; align-items: center; gap: 18px; min-width: 0; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-logo { flex: 0 0 92px; width: 92px; height: 92px; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-logo img { max-width: 100%; max-height: 100%; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-eyebrow { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .82; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-hero h2 { margin: 0 0 6px; color: #fff !important; font-size: 30px; font-weight: 700; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-hero p { max-width: 680px; margin: 0; color: rgba(255,255,255,.88) !important; font-size: 14px; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-meta { display: flex; flex-wrap: wrap; align-self: center; justify-content: flex-end; gap: 7px; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-meta span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; background: rgba(0,0,0,.14); font-size: 11px; white-space: nowrap; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-links { grid-column: 1/-1; display: flex; flex-wrap: wrap; gap: 8px; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-links .btn { display: inline-flex; align-items: center; gap: 6px; border: 0 !important; border-radius: 8px; color: #fff !important; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-link-documentation { background: #78a900 !important; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-link-changelog { background: #486400 !important; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-link-community { background: #7564d5 !important; }
+
+#configuration_plugin_lgthinq2 .lgthinq2-config-section { overflow: hidden; margin: 0 0 16px; padding: 0 19px 16px; border: 1px solid var(--lgthinq2-border); border-radius: 14px; background: rgba(127,127,127,.08); box-shadow: 0 5px 16px rgba(35,55,20,.07); }
+#configuration_plugin_lgthinq2 .lgthinq2-config-section > legend { display: flex; align-items: center; gap: 12px; width: calc(100% + 38px); margin: 0 -19px 20px; padding: 16px 19px; border-bottom: 1px solid var(--lgthinq2-border); background: linear-gradient(90deg,rgba(148,202,2,.13),rgba(148,202,2,.025)); font-size: 17px; font-weight: 700; }
+#configuration_plugin_lgthinq2 .lgthinq2-config-section > legend > i { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 11px; color: #fff; background: var(--lgthinq2-accent-dark); font-size: 17px; }
+#configuration_plugin_lgthinq2 .control-label { font-size: 14px; font-weight: normal; }
+#configuration_plugin_lgthinq2 .icon-lgthinq2 { color: var(--lgthinq2-accent); font-size: 1.3em; }
+#configuration_plugin_lgthinq2 input.dangerBgColor:not([type=radio]):not([type=checkbox]) { color: var(--al-danger-color) !important; }
+
+[data-theme="core2019_Dark"] #configuration_plugin_lgthinq2 { --lgthinq2-border: rgba(255,255,255,.13); }
+@media (max-width:760px) {
+    #configuration_plugin_lgthinq2 .lgthinq2-config-hero { grid-template-columns: 1fr; padding: 20px 18px; }
+    #configuration_plugin_lgthinq2 .lgthinq2-config-meta { justify-content: flex-start; }
+    #configuration_plugin_lgthinq2 .lgthinq2-config-logo { flex-basis: 62px; width: 62px; height: 62px; }
+    #configuration_plugin_lgthinq2 .lgthinq2-config-section { padding-right: 14px; padding-left: 14px; }
+    #configuration_plugin_lgthinq2 .lgthinq2-config-section > legend { width: calc(100% + 28px); margin-right: -14px; margin-left: -14px; }
+}
