@@ -24,7 +24,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 class lgthinq2 extends eqLogic
 {
     /*     * *************************Attributs****************************** */
-    public static $_pluginVersion = '1.04.02';
+    public static $_pluginVersion = '1.05.0';
     public static $_widgetPossibility   = array('custom' => true, 'custom::layout' => true);
 
     const LGTHINQ_GATEWAY       = 'https://route.lgthinq.com:46030/v1/service/application/gateway-uri';
@@ -1190,10 +1190,12 @@ class lgthinq2 extends eqLogic
         $urlParts = parse_url($decodedUrl);
         if (isset($urlParts['query'])) {
             parse_str($urlParts['query'], $queryParams);
-            if (isset($queryParams['code'])) {
-                $code = $queryParams['code'];
-                log::add(__CLASS__, 'debug', __FUNCTION__ . ' : CODE OAUTH présent');
+            if (!isset($queryParams['code'])) {
+                log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Code OAuth absent de la redirection.', __FILE__));
+                return;
             }
+            $code = $queryParams['code'];
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' : CODE OAUTH présent');
             if (isset($queryParams['user_number'])) {
                 log::add(__CLASS__, 'debug', __FUNCTION__ . ' : NUMÉRO UTILISATEUR présent');
                 config::save('user_number', $queryParams['user_number'], __CLASS__);
@@ -1921,7 +1923,6 @@ class lgthinq2 extends eqLogic
 
     public function checkCmdAndUpdateEnergyMonitor($_energy) {
         if (isset($_energy['item'])) {
-            if ($item['power'] == '0') return;
             $cmdP = $this->getCmd('info', 'programCount');
             if (!is_object($cmdP)) {
                 $cmdP = new lgthinq2Cmd();
@@ -2011,17 +2012,18 @@ class lgthinq2 extends eqLogic
      *
      * Cette fonction effectue la synchronisation des données avec les appareils.
      *
-     * @return void
+     * @return bool True once the synchronization request has completed.
      */
     public static function synchronize($_id = false)
     {
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('début ', __FILE__) . $_id);
         if (config::byKey('LGE_MEMBERS_URL', __CLASS__, '') == '' || config::byKey('LG_EMPTERMS_URL', __CLASS__, '') == '' || config::byKey('LGACC_SPX_URL', __CLASS__, '') == '') {
-            $rep0 = lgthinq2::step0();
+            lgthinq2::step0();
         }
         $_id = ($_id !== false) ? (is_object($toto = lgthinq2::byId($_id)) ? $toto->getLogicalId() : '') : '';
+        lgthinq2::getDevices($_id);
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('fin', __FILE__));
-        return lgthinq2::getDevices($_id);
+        return true;
     }
 
     /**
@@ -2335,7 +2337,7 @@ class lgthinq2 extends eqLogic
         $online = false;
         if (!$rti || !isset($rti[lgthinq2::DATA_ROOT]['returnCd'])) {
             $this->setConfiguration('workId', '')->save();
-            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Erreur de la requête ', __FILE__) . json_encode($devices));
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Erreur de la requête ', __FILE__) . json_encode($rti));
             return;
         }
         if ($rti[lgthinq2::DATA_ROOT]['returnCd'] != '0000') {
@@ -2443,7 +2445,7 @@ class lgthinq2 extends eqLogic
         }
         $rti = json_decode($response, true);
         if (!$rti || !isset($rti[lgthinq2::DATA_ROOT])) {
-            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Erreur de la requête ', __FILE__) . json_encode($devices));
+            log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Erreur de la requête ', __FILE__) . json_encode($rti));
             return;
         }
         if ($rti[lgthinq2::DATA_ROOT]['returnCd'] != '0000') {
@@ -2899,6 +2901,9 @@ class lgthinq2 extends eqLogic
                         $listValue = null;
                         $subType = 'other';
                         $updateCmdToValue = null;
+                        $updateCmdId = null;
+                        $configurationString = $actionConfig['value'];
+                        $iCKey = 0;
                         if (preg_match_all('/{{(.*?)}}/', $actionConfig['value'], $matches)) {
                             foreach ($matches[1] as $paramKey) {
                                 log::add(__CLASS__, 'debug', 'CONTROLWIFI match actionName ' .$actionName . " key : " . $paramKey);
@@ -3055,6 +3060,7 @@ class lgthinq2 extends eqLogic
                     foreach ($data['ControlWifi']['action'] as $actionName => $actionConfig) {
                         $subType = 'other';
                         $updateCmdToValue = null;
+                        $iCKey = 0;
                         $actionConfigValue = isset($actionConfig['data']) ? $actionConfig['data'] : $actionConfig['value'];
                         preg_match_all('/\b\w+\b/', $actionConfigValue, $matchesAll);
                         $this->setConfiguration('paramDataList', $matchesAll[0])->save();
@@ -3241,9 +3247,9 @@ class lgthinq2 extends eqLogic
                                         'configuration' => array(
                                             'ctrlKey' => $controlKey,
                                             'cmd' => $controlValue['command'],
-                                            'cmdOpt' => $actionConfig['cmdOpt'],
-                                            'value' => $actionConfig['value'],
-                                            'encode' => $actionConfig['encode'],
+                                            'cmdOpt' => $controlValue['cmdOpt'] ?? $cmdKey,
+                                            'value' => $cmdVal,
+                                            'encode' => $controlValue['encode'] ?? false,
                                             'listValue' => $listValue,
                                             'updateLGCmdToValue' => $updateCmdToValue
 
@@ -3256,6 +3262,7 @@ class lgthinq2 extends eqLogic
                             $this->checkAndCreateCmdFromConfigFile($deviceTypeConfigFile, $controlKey);
 
                         } else {
+                            $iCKey = 0;
                             if ($controlValue['command'] == 'Get') {
                                 $nameCKey = str_replace(array('Get', 'get'), '', $controlKey, $iCKey);
                                 $commands[] = array(
@@ -3312,7 +3319,7 @@ class lgthinq2 extends eqLogic
                                 'configuration' => array(
                                     'ctrlKey' => $controlDeviceValue['ctrlKey'],
                                     'cmd' => $cmdtype,
-                                    'dataKey' => $datakeytype,
+                                    'dataKey' => $datakeytypes[0],
                                     'listValue' => ($nbdatakeys==1?null:$listValue),
                                     'updateLGCmdToValue' => ($nbdatakeys==1?null:'#select#')
                                 )
@@ -3470,6 +3477,7 @@ class lgthinq2 extends eqLogic
         } else {
             log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . __('Commande online inexistante : ', __FILE__) . $this->getConfiguration('deviceType', '') . ' ' . $this->getLogicalId());
         }
+        return false;
     }
 
     /**
@@ -3567,6 +3575,8 @@ class lgthinq2 extends eqLogic
         }
         $_version = jeedom::versionAlias($_version);
 
+        $course = null;
+        $smartCourse = null;
         if ($deviceType == 201 || $deviceType == 221) {
             $course = $this->getCmd('info', 'courseFL24inchBaseTitan');
             $smartCourse = $this->getCmd('info', 'smartCourseFL24inchBaseTitan');
@@ -3669,7 +3679,7 @@ class lgthinq2 extends eqLogic
         }
 
         $html = template_replace($replace, getTemplate('core', $_version, 'lgthinq2.' . $deviceType . '.template',__CLASS__));
-        $html = translate::exec($html, 'plugins/lgthinq2/core/template/' . $version . '/lgthinq2.' . $deviceType . '.template.html');
+        $html = translate::exec($html, 'plugins/lgthinq2/core/template/' . $_version . '/lgthinq2.' . $deviceType . '.template.html');
         return $html;
     }
 }
@@ -3835,13 +3845,13 @@ class lgthinq2Cmd extends cmd
                     }
 
                     if (is_array($resValue)) {
-                        $resValue = json_encode($resValue); // to send on string infos cmd
-                        foreach ($resValue as $resValueK => $resValueV) { // to update each key if cmd exists also
-                            $cmdResV = $this->getCmd('info', $resValueV);
+                        foreach ($resValue as $resValueK => $resValueV) {
+                            $cmdResV = $eqLogic->getCmd('info', $resValueK);
                             if (is_object($cmdResV)) {
                                 $cmdResV->event($resValueV);
                             }
                         }
+                        $resValue = json_encode($resValue);
                     }
                     log::add('lgthinq2', 'debug', __FUNCTION__ . ' : Réponse décodée récupérée ' . $resValue);
                 }

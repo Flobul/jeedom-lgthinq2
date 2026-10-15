@@ -25,7 +25,7 @@ for root in ('core','desktop','mobile','plugin_info'):
    if re.search(rf'function\s+{duplicated}\s*\(',text):warnings.append(f'{f}: duplicates Jeedom global helper {duplicated}')
   if 'addCmdToTable(' in text and 'logicalId' not in text and 'getLogicalId' not in text:warnings.append(f'{f}: addCmdToTable needs manual logicalId consistency review')
 for f in Path('desktop').rglob('*.php') if Path('desktop').exists() else []:
- text=f.read_text(errors='replace');legacy=len(re.findall(r'(?<!data-)\btitle\s*=\s*["\']',text))
+ text=f.read_text(errors='replace');legacy=sum(len(re.findall(r'(?<!data-)\btitle\s*=\s*["\']',tag)) for tag in re.findall(r'<[^>]+>',text))
  if legacy:warnings.append(f'{f}: {legacy} title attribute(s) need data-title review')
 for msg in sorted(set(warnings)):print(f'::warning::{msg}')
 for msg in errors:print(f'::error::{msg}')

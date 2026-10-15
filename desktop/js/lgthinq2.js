@@ -16,7 +16,7 @@
 
 function addCmdToTable(_cmd) {
   if (!isset(_cmd)) {
-    var _cmd = {
+    _cmd = {
       configuration: {}
     };
   }
@@ -203,8 +203,9 @@ document.getElementById('div_lgthinq2').addEventListener('click', function(event
     }
     if (_target = event.target.closest('.eqLogicAction[data-action=delete]')) {
         var what = _target.dataset.action2;
-        if (what == 'appareils') var text = '{{Cette action supprimera les}} ' + what + ' {{retirés de LGThinq.}}';
-        else if (what == 'all') var text = '{{Cette action supprimera tous les appareils.}}';
+        var text = '';
+        if (what == 'appareils') text = '{{Cette action supprimera les}} ' + what + ' {{retirés de LGThinq.}}';
+        else if (what == 'all') text = '{{Cette action supprimera tous les appareils.}}';
         jeeDialog.confirm(text, function(result) {
             if (result) {
                 domUtils.ajax({

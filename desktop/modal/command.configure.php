@@ -47,7 +47,7 @@ sendVarToJS('cmdInfo', $cmdInfo);
               <div class="form-group">
                 <label class="col-xs-3 control-label">{{ID logique}}</label>
                 <div class="col-xs-9">
-                    <input class="cmdAttr form-control input-sm" data-l1key="logicalId" placeholder="{{ID logique}}" title="{{ID logique}}" style="display:inline-block"></input>
+                    <input class="cmdAttr form-control input-sm" data-l1key="logicalId" placeholder="{{ID logique}}" data-title="{{ID logique}}" style="display:inline-block"></input>
                 </div>
               </div>
               </br>
@@ -56,13 +56,13 @@ sendVarToJS('cmdInfo', $cmdInfo);
                   <div class="form-group">
                     <label class="col-xs-3 control-label">{{Valeur par défaut}}</label>
                     <div class="col-xs-9">
-                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="default" placeholder="{{Valeur par défaut}}" title="{{Valeur par défaut}}" style="display:inline-block"></input>
+                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="default" placeholder="{{Valeur par défaut}}" data-title="{{Valeur par défaut}}" style="display:inline-block"></input>
                     </div>
                   </div>
                   <div class="form-group">
                     <label class="col-xs-3 control-label">{{Sous-type originel}}</label>
                     <div class="col-xs-9">
-                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="originalType" placeholder="{{Sous-type}}" title="{{Sous-type}}" style="display:inline-block"></input>
+                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="originalType" placeholder="{{Sous-type}}" data-title="{{Sous-type}}" style="display:inline-block"></input>
                     </div>
                   </div>
                     <?php if ($valueMapping = $cmd->getConfiguration('valueMapping', false)) { ?>
@@ -84,14 +84,14 @@ sendVarToJS('cmdInfo', $cmdInfo);
                   <div class="form-group">
                     <label class="col-xs-3 control-label">{{cmd}}</label>
                     <div class="col-xs-9">
-                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="cmd" placeholder="{{cmd}}" title="{{cmd}}" style="display:inline-block"></input>
+                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="cmd" placeholder="{{cmd}}" data-title="{{cmd}}" style="display:inline-block"></input>
                     </div>
                   </div>
 
                   <div class="form-group">
                     <label class="col-xs-3 control-label">{{ctrlKey}}</label>
                     <div class="col-xs-9">
-                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="ctrlKey" placeholder="{{ctrlKey}}" title="{{ctrlKey}}" style="display:inline-block"></input>
+                        <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="ctrlKey" placeholder="{{ctrlKey}}" data-title="{{ctrlKey}}" style="display:inline-block"></input>
                     </div>
                   </div>
 
@@ -99,14 +99,14 @@ sendVarToJS('cmdInfo', $cmdInfo);
                       <div class="form-group">
                         <label class="col-xs-3 control-label">{{dataSetList}}</label>
                         <div class="col-xs-9">
-                            <textarea id="prettyDataSetList" rows="10" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="dataSetList" placeholder="{{dataSetList}}" title="{{dataSetList}}" style="display:inline-block;height: auto;"><?php echo json_encode($cmd->getConfiguration('dataSetList'), JSON_PRETTY_PRINT)?></textarea>
+                            <textarea id="prettyDataSetList" rows="10" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="dataSetList" placeholder="{{dataSetList}}" data-title="{{dataSetList}}" style="display:inline-block;height: auto;"><?php echo json_encode($cmd->getConfiguration('dataSetList'), JSON_PRETTY_PRINT)?></textarea>
                         </div>
                       </div>
                   <?php } else { ?>
                       <div class="form-group">
                         <label class="col-xs-3 control-label">{{dataKey}}</label>
                         <div class="col-xs-9">
-                            <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="dataKey" placeholder="{{dataKey}}" title="{{dataKey}}" style="display:inline-block"></input>
+                            <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="dataKey" placeholder="{{dataKey}}" data-title="{{dataKey}}" style="display:inline-block"></input>
                         </div>
                       </div>
 
@@ -136,14 +136,14 @@ sendVarToJS('cmdInfo', $cmdInfo);
                             <div class="form-group">
                               <label class="col-xs-3 control-label">{{dataValue}}</label>
                               <div class="col-xs-9">
-                                  <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="dataValue" placeholder="{{dataValue}}" title="{{dataValue}}" style="display:inline-block"></input>
+                                  <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="dataValue" placeholder="{{dataValue}}" data-title="{{dataValue}}" style="display:inline-block"></input>
                               </div>
                             </div>
                             <?php if ($cmd->getSubType() == 'other' && $cmd->getConfiguration('updateLGCmdToValue', '') != '') { ?>
                                 <div class="form-group">
                                   <label class="col-xs-3 control-label">{{Veuillez vider ce champ avant sauvegarde}}</label>
                                   <div class="col-xs-9">
-                                      <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="updateLGCmdToValue" placeholder="{{updateLGCmdToValue}}" title="{{updateLGCmdToValue}}" style="display:inline-block;background-color:var(--al-danger-color) !important;"></input>
+                                      <input class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="updateLGCmdToValue" placeholder="{{updateLGCmdToValue}}" data-title="{{updateLGCmdToValue}}" style="display:inline-block;background-color:var(--al-danger-color) !important;"></input>
                                   </div>
                                 </div>
                             <?php } ?>

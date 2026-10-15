@@ -51,7 +51,6 @@ class lgthinq2_customLang
             "@AC_MAIN_OPERATION_MODE_HEAT_W"          => __("Chauffage", __FILE__),
             "@AC_MAIN_OPERATION_MODE_AIRCLEAN_W"      => "AC_MAIN_OPERATION_MODE_AIRCLEAN_W", //à traduire
             "@AC_MAIN_OPERATION_MODE_ACO_W"           => "AC_MAIN_OPERATION_MODE_ACO_W", //à traduire
-            "@AC_MAIN_OPERATION_MODE_AROMA_W"         => __("Aroma", __FILE__),
             "@AC_MAIN_OPERATION_MODE_ENERGY_SAVING_W" => __("Économie d'énergie", __FILE__),
             "@AP_MAIN_MID_OPMODE_CLEAN_W"             => __("Nettoyage", __FILE__),
             "@AP_MAIN_MID_OPMODE_SLEEP_W"             => __("Veille", __FILE__),
