@@ -2,7 +2,7 @@
     "name": "jeedom/lgthinq2",
     "description": "Plugin Jeedom pour la récupérer les informations et piloter ses appareils LG ThinQ",
     "homepage" : "https://github.com/Flobul/jeedom-lgthinq2",
-    "license" : "AGPL-3.0-or-later",
+    "license" : "GPL-3.0-or-later",
     "authors" : [{
             "name" : "Flobul",
             "email" : "flobul.jeedom@gmail.com"
