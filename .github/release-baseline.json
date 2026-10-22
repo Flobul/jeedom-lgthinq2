@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "plugin_id": "lgthinq2",
+  "class_file": "core/class/lgthinq2.class.php",
+  "reference_version": "1.05.0",
+  "reference_commit": "ba7523b400641a4990af7f50f793b6fe07e48202"
+}
