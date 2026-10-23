@@ -1,22 +1,20 @@
 version: 2
 updates:
-  - package-ecosystem: composer
-    directory: "/.github/ci"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-  - package-ecosystem: npm
-    directory: "/.github/ci"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
   - package-ecosystem: composer
     directory: "/"
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      composer-dependencies:
+        patterns:
+          - "*"
