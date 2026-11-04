@@ -32,6 +32,13 @@ $eqLogics = eqLogic::byType($plugin->getId());
   <div class="eqLogicThumbnailDisplay" style="border-left: solid 1px #EEE; padding-left: 25px;">
     <legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
     <div class="eqLogicThumbnailContainer">
+        <?php if (version_compare((string) jeedom::version(), '4.4.0', '>=')) { ?>
+            <div class="cursor eqLogicAction logoSecondary" data-action="createCommunityPost" data-plugin_id="lgthinq2" role="button" tabindex="0" aria-label="{{Créer un sujet d'assistance sur Community Jeedom}}">
+                <i class="fas fa-comments"></i>
+                <br>
+                <span style="color:var(--txt-color)">{{Community}}</span>
+            </div>
+        <?php } ?>
 
         <?php
           if ((config::byKey('access_token', 'lgthinq2', '') == '' || config::byKey('expires_in', 'lgthinq2', '') == '' ||
@@ -300,6 +307,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
     </div>
   </div>
 </div>
+<?php include_file('desktop', 'community', 'js', 'lgthinq2'); ?>
 
 <?php
 include_file('desktop', 'lgthinq2', 'js', 'lgthinq2');

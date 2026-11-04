@@ -2,6 +2,8 @@
 
 ## Non publié
 
+
+- Ajout d’un accès Community avec aperçu et diagnostic facultatif limité à des compteurs non sensibles.
 ## Version 1.05.0 (14/10/2026)
 
 - Ajout de workflows CI et de scripts pour le front-end, le PHP, la sécurité et la gestion des badges.
