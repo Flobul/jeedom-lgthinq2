@@ -31,14 +31,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 <div class="row row-overflow" id="div_lgthinq2">
   <div class="eqLogicThumbnailDisplay" style="border-left: solid 1px #EEE; padding-left: 25px;">
     <legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
-    <div class="eqLogicThumbnailContainer">
-        <?php if (version_compare((string) jeedom::version(), '4.4.0', '>=')) { ?>
-            <div class="cursor eqLogicAction logoSecondary" data-action="createCommunityPost" data-plugin_id="lgthinq2" role="button" tabindex="0" aria-label="{{Créer un sujet d'assistance sur Community Jeedom}}">
-                <i class="fas fa-comments"></i>
-                <br>
-                <span style="color:var(--txt-color)">{{Community}}</span>
-            </div>
-        <?php } ?>
+    <div class="eqLogicThumbnailContainer lgthinq2-management">
+            <div class="lgthinq2-management-group lgthinq2-management-actions">
 
         <?php
           if ((config::byKey('access_token', 'lgthinq2', '') == '' || config::byKey('expires_in', 'lgthinq2', '') == '' ||
@@ -54,6 +48,15 @@ $eqLogics = eqLogic::byType($plugin->getId());
           lgthinq2_display::displayActionCard('{{Suppression de tous les appareils}}', 'fa-trash-alt', 'data-action="delete" data-action2="all"', 'logoTrashLG');
         ?>
     </div>
+            <?php if (version_compare((string) jeedom::version(), '4.4.0', '>=')) { ?>
+            <div class="lgthinq2-management-group lgthinq2-management-community">
+                <div class="cursor eqLogicAction logoSecondary" data-action="createCommunityPost" data-plugin_id="lgthinq2" role="button" tabindex="0" aria-label="{{Créer un sujet d'assistance sur Community Jeedom}}">
+                    <i class="fas fa-comments"></i><br>
+                    <span style="color:var(--txt-color)">{{Community}}</span>
+                </div>
+            </div>
+            <?php } ?>
+        </div>
     <legend><i class="icon kiko-smart-house"></i> {{Mes appareils}}</legend>
 		<?php
             if (count($eqLogics) == 0) {

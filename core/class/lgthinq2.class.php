@@ -24,36 +24,123 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 class lgthinq2 extends eqLogic
 {
 
-    /**
-     * Return privacy-safe aggregate diagnostics for a Community support post.
-     */
     public static function getConfigForCommunity($_separator = '<br>')
     {
-        $equipments = eqLogic::byType(__CLASS__);
-        $enabled = 0;
-        $commands = 0;
-
-        foreach ($equipments as $equipment) {
-            if ((int) $equipment->getIsEnable() === 1) {
-                $enabled++;
-            }
-            $equipmentCommands = $equipment->getCmd();
-            $commands += is_array($equipmentCommands) ? count($equipmentCommands) : 0;
+        if (!is_string($_separator) || !in_array($_separator, array('<br>', '<br/>', '<br />', "\n"), true)) {
+            $_separator = '<br>';
         }
-
-        $lines = array(
-            '<!-- JEEDOM_PLUGIN_DIAGNOSTICS_START -->',
-            __('Équipements configurés', __FILE__) . ' : ' . count($equipments),
-            __('Équipements actifs', __FILE__) . ' : ' . $enabled,
-            __('Commandes configurées', __FILE__) . ' : ' . $commands,
-            '<!-- JEEDOM_PLUGIN_DIAGNOSTICS_END -->'
-        );
-
+        $unknown = __('Inconnu', __FILE__);
+        $isTrue = static function ($value) { return in_array($value, array(true, 1, '1'), true); };
+        $isFalse = static function ($value) { return in_array($value, array(false, 0, '0'), true); };
+        $integer = static function ($value, $min, $max) {
+            if ((!is_int($value) && !is_string($value)) || preg_match('/^[0-9]{1,10}$/D', (string) $value) !== 1) {
+                return null;
+            }
+            $number = (int) $value;
+            return $number >= $min && $number <= $max ? $number : null;
+        };
+        $present = static function ($value) { return is_string($value) && trim($value) !== ''; };
+        $format = static function ($value, $kind, $args = array()) use ($unknown) {
+            switch ($kind) {
+            }
+            return $unknown;
+        };
+        $equipments = eqLogic::byType(__CLASS__);
+        $equipments = is_array($equipments) ? $equipments : array();
+        $lines = array('<!-- JEEDOM_PLUGIN_DIAGNOSTICS_START -->', __('Équipements configurés', __FILE__) . ' : ' . count($equipments));
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('platformType', '');
+                $matched = is_string($value) && in_array($value, array('thinq1'), true);
+                if ($matched) { $total++; }
+            }
+        }
+        $lines[] = __('Plateformes ThinQ1', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('platformType', '');
+                $matched = is_string($value) && in_array($value, array('thinq2'), true);
+                if ($matched) { $total++; }
+            }
+        }
+        $lines[] = __('Plateformes ThinQ2', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('platformType', '');
+                $matched = is_string($value) && in_array($value, array('thinq1', 'thinq2'), true);
+                if (!$matched) { $total++; }
+            }
+        }
+        $lines[] = __('Plateformes inconnues', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('MonitoringType', '');
+                $matched = is_string($value) && in_array($value, array('JSON'), true);
+                if ($matched) { $total++; }
+            }
+        }
+        $lines[] = __('Monitoring JSON', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('MonitoringType', '');
+                $matched = is_string($value) && in_array($value, array('BINARY(BYTE)'), true);
+                if ($matched) { $total++; }
+            }
+        }
+        $lines[] = __('Monitoring binaire', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('MonitoringType', '');
+                $matched = is_string($value) && in_array($value, array('JSON', 'BINARY(BYTE)'), true);
+                if (!$matched) { $total++; }
+            }
+        }
+        $lines[] = __('Monitoring inconnu', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('nbDisconnections', '');
+                $number = $integer($value, 0, 1000000);
+                if ($number === null) { $invalid++; } else { $total += ($number > 0 ? 1 : 0); }
+            }
+        }
+        $lines[] = __('Équipements avec déconnexions mémorisées', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $total = 0;
+        $invalid = 0;
+        foreach ($equipments as $equipment) {
+            $items = array($equipment);
+            foreach ($items as $item) {
+                $value = $item->getConfiguration('needRtiControl', '');
+                if ($isTrue($value)) { $total++; } elseif (!$isTrue($value) && !$isFalse($value)) { $invalid++; }
+            }
+        }
+        $lines[] = __('Équipements nécessitant RTI', __FILE__) . ' : ' . ($invalid > 0 ? $unknown : (string) $total);
+        $lines[] = '<!-- JEEDOM_PLUGIN_DIAGNOSTICS_END -->';
         return implode($_separator, $lines) . $_separator;
     }
 
     /*     * *************************Attributs****************************** */
-    public static $_pluginVersion = '1.05.0';
+    public static $_pluginVersion = '1.6.0';
     public static $_widgetPossibility   = array('custom' => true, 'custom::layout' => true);
 
     const LGTHINQ_GATEWAY       = 'https://route.lgthinq.com:46030/v1/service/application/gateway-uri';
